@@ -437,7 +437,7 @@ def generate_samples_from_template(template_filepath, named_patterns):
                         elif oper.startswith('if '):
                             # Выделяем подстроки с проверяемым выражением и меткой перехода по шаблону:
                             # !if x1==0 goto OnZero
-                            m = re.search(r'\bif\s+(.+)\s+goto\s([a-zA-Z]+)\b', oper)
+                            m = re.search(r'\bif\s+(.+)\s+goto\s+([a-zA-Z0-9_]+)\b', oper)
                             if m is None:
                                 logging.error('Невалидный формат оператора if в строке %s шаблона "%s"', line, fp)
                                 raise ValueError()
@@ -449,7 +449,7 @@ def generate_samples_from_template(template_filepath, named_patterns):
                                     # Переходим на заданную метку label
                                     label_found = False
                                     for i, line in enumerate(template['dialogue']):
-                                        if line.startswith('!:' + label):
+                                        if isinstance(line, str) and line.startswith('!:' + label):
                                             iline = i
                                             label_found = True
                                             break
