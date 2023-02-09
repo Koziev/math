@@ -1,0 +1,25 @@
+{
+ "variables":
+ {
+  "sbj": "random.choice(fnames)",
+  "x1": "random.randint(3, 10)",
+  "x2": "random.randint(3, 10)",
+  "z": "x1-x2",
+  "obj": "'⦃тетрадка|закладка|ягода|груша|морковка|расческа⦄'",  "###": "перечислены предметы женского рода"
+ },
+ 
+ "constraints":
+ [
+  "z >= 0"
+ ],
+ 
+ "dialogue":
+ [
+  "У {gen_sing(sbj)} было {x1} {numcor(x1, obj, 'Nom')}. Сколько их у нее осталось после того, как она отдала {x2} {numcor(x2, obj, 'Acc')}?",
+  "!if z == 0 goto OnZero",
+  "{x1}-{x2}={z}. У {gen_sing(sbj)} осталось {z} {numcor(z, obj, 'Nom')}.",
+  "!goto EXIT",
+  "!:OnZero",
+  "{x1}-{x2}={z}. У {gen_sing(sbj)} не осталось ни одной {gen_sing(obj)}."
+ ]
+}
