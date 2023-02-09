@@ -1,0 +1,49 @@
+{
+ "variables":
+ {
+  "l1": "random.sample(range(5, 1000), random.randint(3, 7))",
+  "l2": "random.sample(range(5, 1000), random.randint(3, 7))",
+  "l12": "l1 + l2",
+  "n_less_100": "sum(x<100 for x in l12)",
+  "delta": "random.randint(1, 5)"
+ },
+ 
+ "dialogue":
+ [
+  "Пусть заданы два списка чисел. Первый список: {', '.join(map(str, l1))}. Второй список: {', '.join(map(str, l2))}. Сколько всего чисел в этих двух списках?",
+  "В них {len(l1)+len(l2)} {numcor(len(l1)+len(l2), 'число', 'Nom')}",
+
+  "!if random.random()<0.5 goto SecondList",
+
+  "Сколько чисел в первом списке?",
+  "В нем {len(l1)} {numcor(len(l1), 'число', 'Nom')}",
+  "А во втором сколько?",
+  "Во втором их {len(l2)}",
+  "!goto DoMerge",
+
+  "!:SecondList",
+  "Сколько чисел во втором списке?",
+  "В нем {len(l2)} {numcor(len(l2), 'число', 'Nom')}",
+  "А в первом?",
+  "В нем их {len(l1)}",
+  
+  "!:DoMerge",
+  "Объедини эти два списка и напиши числа в порядке возрастания",
+  "{', '.join(map(str, sorted(l12)))}",
+  
+  "Сколько в нем чисел меньше 100?",
+  "!if n_less_100>1 goto n100_1",
+  "!if n_less_100>0 goto n100_2",
+  "Таких чисел там вообще нет",
+  "!goto n100_exit",
+  "!:n100_2",
+  "Там одно такое число: {[x for x in l12 if x<100][0]}",
+  "!goto n100_exit",
+  "!:n100_1",
+  "Таких чисел там {n_less_100}: {', '.join(str(x) for x in l12 if x<100)}",
+  "!:n100_exit",
+  
+  "Прибавь {delta} к каждому числу в объединенном списке. Как теперь он выглядит?",
+  "{', '.join([str(x+delta) for x in sorted(l12)])}"
+ ]
+}
