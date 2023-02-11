@@ -69,6 +69,15 @@ python generate_math_tasks.py --dir каталог_с_шаблонами  --reso
 Вы можете использовать датасет [inkoziev/arithmetic](https://huggingface.co/datasets/inkoziev/arithmetic),
 сформированный из нескольких источников, включая сгенерированные данным шаблонизатором сэмплы. 
 
+
+# Baseline для решения задач генеративными моделями
+
+Код [test_arith_accuracy.py](https://github.com/Koziev/math/blob/main/pycode/test_arith_accuracy.py) загружает
+датасет [inkoziev/arithmetic](https://huggingface.co/datasets/inkoziev/arithmetic), файнтюнит
+генеративную модель с помощью класса trainsformers.Trainer, выполняет инференс на тестовых сэмплах и вычисляет
+метрики точности решения.
+
+
 # Синтаксис шаблонов
 
 В [подкаталоге data](https://github.com/Koziev/math/tree/main/data/math) есть примеры шаблонов.
