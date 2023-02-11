@@ -19,6 +19,6 @@
  "dialogue":
  [
   "{sbj} {verb} {x1} {numcor(x1, fig1, 'Acc')} и {x2} {numcor(x2, fig2, 'Acc')}. Сколько всего фигур она {verb}?",
-  "{x1}+{x2}={z}. Всего {sbj} {verb} {z} {numcor(z, 'фигура', 'Acc')}"
+  ["{x1}+{x2}={z}. Всего {sbj} {verb} {z} {numcor(z, 'фигура', 'Acc')}", "{x1}+{x2}={z}", "{z} {numcor(z, 'фигура', 'Acc')}"]
  ]
 }

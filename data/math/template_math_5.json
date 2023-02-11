@@ -5,7 +5,9 @@
   "l2": "random.sample(range(5, 1000), random.randint(3, 7))",
   "l12": "l1 + l2",
   "n_less_100": "sum(x<100 for x in l12)",
-  "delta": "random.randint(1, 5)"
+  "delta": "random.randint(1, 5)",
+  "l12_prime": "[x+delta for x in sorted(l12)]",
+  "n_first": "random.randint(2, min(len(l12_prime), 5))"
  },
  
  "dialogue":
@@ -44,6 +46,9 @@
   "!:n100_exit",
   
   "Прибавь {delta} к каждому числу в объединенном списке. Как теперь он выглядит?",
-  "{', '.join([str(x+delta) for x in sorted(l12)])}"
+  "{', '.join(map(str, l12_prime))}",
+  
+  "Чему равна сумма первых {n_first} чисел в этом списке?",
+  "{'+'.join(map(str, l12_prime[:n_first]))}={sum(l12_prime[:n_first])}"
  ]
 }
