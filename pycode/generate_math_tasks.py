@@ -426,7 +426,7 @@ def generate_samples_from_template(template_filepath, named_patterns):
                                 # Переход на заданную метку. Ищем эту метку среди строк диалога, устанавливаем iline.
                                 label_found = False
                                 for i, line in enumerate(template['dialogue']):
-                                    if line.startswith('!:'+label):
+                                    if isinstance(line, str) and line.startswith('!:'+label):
                                         iline = i+1  # следующая строка после метки
                                         label_found = True
                                         break
@@ -484,14 +484,13 @@ def generate_samples_from_template(template_filepath, named_patterns):
                 for expr0 in re.findall(r'\{(.+?)\}', utterance):
                     expr = expr0
                     expr = subst_vars(expr, vars)
-                    if expr0 != expr:
-                        try:
-                            expr2 = str(eval(expr))
-                        except Exception as ex:
-                            logging.error('Возникла ошибка при вычислении выражения %s в условии %s шаблона "%s"', expr, line, fp)
-                            logging.error(ex)
-                            raise ValueError()
-                        utterance = utterance.replace('{' + expr0 + '}', expr2)
+                    try:
+                        expr2 = str(eval(expr))
+                    except Exception as ex:
+                        logging.error('Возникла ошибка при вычислении выражения %s в условии %s шаблона "%s"', expr, line, fp)
+                        logging.error(ex)
+                        raise ValueError()
+                    utterance = utterance.replace('{' + expr0 + '}', expr2)
                 utterances.append(utterance)
                 iline += 1
 
