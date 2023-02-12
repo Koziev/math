@@ -1,0 +1,56 @@
+{
+ "variables":
+ {
+  "a1": "random.randint(1, 6)",
+  "a2": "random.randint(2, 8)",
+  "b1": "random.randint(2, 6)",
+  "b2": "random.randint(2, 8)",
+  "c1": "random.randint(1, 7)",
+  "c2": "random.randint(2, 8)",
+  "z1": "a1+b1+c1",
+  "z2": "a2+b2+c2",
+  "sbj1": "random.choice(mnames)",
+  "sbj2": "random.choice(fnames)",
+  "sbj3": "random.choice(fnames)",
+  
+  "books1": "sorted([(a1, sbj1), (b1, sbj2), (c1, sbj3)], key=lambda z: z[0])",
+  "notes1": "sorted([(a2, sbj1), (b2, sbj2), (c2, sbj3)], key=lambda z: z[0])"
+ },
+ 
+ "constraints":
+ [
+  "a1 != b1",
+  "a1 != c1",
+  "b1 != c1",
+
+  "a2 != b2",
+  "a2 != c2",
+  "b2 != c2"
+ ],
+ 
+ "dialogue":
+ [
+  "Напиши, как решить такую задачу. В классе сидит трое учеников: {sbj1}, {sbj2} и {sbj3}. У {gen_sing(sbj1)} {a1} {numcor(a1, 'учебник', 'Nom')} и {a2} {numcor(a2, 'тетрадка', 'Nom')}. У {gen_sing(sbj2)} {b1} {numcor(b1, 'учебник', 'Nom')} и {b2} {numcor(b2, 'тетрадка', 'Nom')}. У {gen_sing(sbj3)} {c1} {numcor(c1, 'учебник', 'Nom')} и {c2} {numcor(c2, 'тетрадка', 'Nom')}. Посчитай, сколько всего учебников у этих детей?",
+  "У них {a1}+{b1}+{c1}={z1} {numcor(z1, 'учебник', 'Nom')}",
+  ["А тетрадей сколько?", "Сколько тетрадей?"],
+  ["Тетрадей у них {a2}+{b2}+{c2}={z2}", "У них {a2}+{b2}+{c2}={z2} {numcor(z2, 'тетрадь', 'Nom')}"],
+
+  "Чего у них больше: тетрадей или учебников?",
+  "!if z2 > z1 goto NotebooksGreater",
+  "{z1}>{z2}, поэтому учебников больше",
+  "!goto Total",
+  "!:NotebooksGreater",
+  "{z1}<{z2}, поэтому тетрадей больше",
+  
+  "!:Total",
+  "Сколько в сумме у них тетрадей и учебников?",
+  "{z1}+{z2}={z1+z2}",
+  
+  "У кого учебников больше всего?",
+  "У {gen_sing(books1[-1][1])} {books1[-1][0]} {numcor(books1[-1][0], 'учебник', 'Nom')}, это больше, чем у {gen_sing(books1[0][1])} и {gen_sing(books1[1][1])}.",
+  
+  "А тетрадей у кого?",
+  "У {gen_sing(notes1[-1][1])} {notes1[-1][0]} {numcor(notes1[-1][0], 'тетрадь', 'Nom')}, это больше, чем у {gen_sing(notes1[0][1])} и {gen_sing(notes1[1][1])}."
+ 
+ ]
+}
