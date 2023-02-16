@@ -20,6 +20,7 @@ from transformers import AutoModelForCausalLM
 import transformers
 from transformers import AutoTokenizer
 from transformers import TrainingArguments, Trainer, TrainerCallback
+from transformers import XGLMTokenizer, XGLMForCausalLM
 import tqdm
 import datasets
 
@@ -34,7 +35,6 @@ def extract_number(text):
         return int(m.group(0))
     else:
         return None
-
 
 
 def merge_dialog(messages):
@@ -67,7 +67,8 @@ class FinetuneDataset(Dataset):
         input_ids = input_ids0 + npad * [self.pad_token_id]
         labels = input_ids0 + npad * [-100]
         attention_mask = [1] * input_len + [0] * npad
-        return {'input_ids': torch.LongTensor(input_ids), 'labels': torch.LongTensor(labels), 'attention_mask': torch.LongTensor(attention_mask)}
+        return {'input_ids': torch.LongTensor(input_ids), 'labels': torch.LongTensor(labels),
+                'attention_mask': torch.LongTensor(attention_mask)}
 
 
 if __name__ == '__main__':
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     data = [sample['conversation'] for sample in ds['train']]
 
     # Вариант загрузки из локального файла
-    #with open(os.path.expanduser('~/polygon/chatbot/tmp/qa_arith.json'), 'r') as f:
+    # with open(os.path.expanduser('~/polygon/chatbot/tmp/qa_arith.json'), 'r') as f:
     #    data = json.load(f)
 
     train_data, test_data = train_test_split(data, test_size=0.1, random_state=123456789)
@@ -97,38 +98,53 @@ if __name__ == '__main__':
                 reply = item[istep]
                 test_samples.append((history, reply))
 
+    epochs = 1
+
     # Будем использовать эту модель для файнтюна и определения качества инференса
-    pretrained_model_name = 'sberbank-ai/rugpt3small_based_on_gpt2'
+    # pretrained_model_name = 'sberbank-ai/rugpt3small_based_on_gpt2'
+    # learning_rate = 1e-5
+    # batch_size = 32
+
+    pretrained_model_name = 'facebook/xglm-2.9B'
     learning_rate = 1e-5
-    batch_size = 32
+    batch_size = 2
 
-    #pretrained_model_name = 'sberbank-ai/rugpt3large_based_on_gpt2'
-    #learning_rate = 1e-5
-    #batch_size = 6
+    # pretrained_model_name = 'sberbank-ai/rugpt3large_based_on_gpt2'
+    # learning_rate = 1e-5
+    # batch_size = 16
 
-    #pretrained_model_name = 'sberbank-ai/ruT5-base'
-    #learning_rate = 1e-6
-    #batch_size = 32
+    # pretrained_model_name = 'sberbank-ai/rugpt3medium_based_on_gpt2'
+    # learning_rate = 1e-5
+    # batch_size = 32
+
+    # pretrained_model_name = 'sberbank-ai/ruT5-base'
+    # learning_rate = 1e-6
+    # batch_size = 32
 
     print('Loading pretrained model "{}"...'.format(pretrained_model_name))
-    if 't5' in pretrained_model_name.lower():
+    if 'xglm' in pretrained_model_name.lower():
+        tokenizer = XGLMTokenizer.from_pretrained(pretrained_model_name)
+        model = XGLMForCausalLM.from_pretrained(pretrained_model_name)
+    elif 't5' in pretrained_model_name.lower():
         model = transformers.T5ForConditionalGeneration.from_pretrained(pretrained_model_name)
+        tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name)
     else:
         model = transformers.AutoModelForCausalLM.from_pretrained(pretrained_model_name)
+        tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name)
+
     model.to(device)
 
-    tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name)
     tokenizer.add_special_tokens({'bos_token': '<s>', 'eos_token': '</s>', 'pad_token': '<pad>'})
 
     # НАЧАЛО ОТЛАДКИ
-    #train_data = train_data[:10000]
+    # train_data = train_data[:10000]
     # КОНЕЦ ОТЛАДКИ
     train_dataset = FinetuneDataset(train_data, tokenizer)
 
     training_args = TrainingArguments(
         report_to="none",
         evaluation_strategy='no',
-        #eval_steps=5000,
+        # eval_steps=5000,
         disable_tqdm=False,
         save_total_limit=0,  # Only last 1 model is saved. Older ones are deleted.
         output_dir=output_dir,
@@ -138,8 +154,8 @@ if __name__ == '__main__':
         do_eval=False,
         learning_rate=learning_rate,
         per_device_train_batch_size=batch_size,
-        #per_device_eval_batch_size=8,
-        num_train_epochs=1,
+        # per_device_eval_batch_size=8,
+        num_train_epochs=epochs,
         weight_decay=0.001,
         fp16=True,
         push_to_hub=False,
@@ -152,7 +168,7 @@ if __name__ == '__main__':
         train_dataset=train_dataset,
         tokenizer=tokenizer,
         data_collator=None,
-        #compute_metrics=compute_metrics,
+        # compute_metrics=compute_metrics,
         # callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]
     )
 
@@ -166,7 +182,8 @@ if __name__ == '__main__':
     with open(os.path.join(tmp_dir, 'test_arith_accuracy.log'), 'w') as wrt_log:
         try:
             for history, reply in test_samples:
-                encoded_prompt = tokenizer.encode('<s>' + history + '\n', add_special_tokens=False, return_tensors="pt").to(device)
+                encoded_prompt = tokenizer.encode('<s>' + history + '\n', add_special_tokens=False,
+                                                  return_tensors="pt").to(device)
                 output = model.generate(input_ids=encoded_prompt,
                                         max_length=train_dataset.max_len,
                                         top_k=30,
@@ -194,10 +211,12 @@ if __name__ == '__main__':
                         label = 'ERROR'
 
                     if true_num != 0:
-                        err = abs(pred_num-true_num) / float(true_num)
+                        err = abs(pred_num - true_num) / float(true_num)
                         sample_errs.append(err)
                         if 0 == (len(sample_errs) % 10):
-                            print('support={}  mean err={:5.3}%  mean hits={:5.3f}'.format(len(sample_errs), np.mean(sample_errs)*100, np.mean(sample_hits)))
+                            print('support={}  mean err={:5.3}%  mean hits={:5.3f}'.format(len(sample_errs),
+                                                                                           np.mean(sample_errs) * 100,
+                                                                                           np.mean(sample_hits)))
                             wrt_log.flush()
                 elif num_num == 0:
                     sample_hits.append(False)
@@ -209,5 +228,6 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
             print('Keyboard interrupt.')
 
-    print('-'*80)
-    print('support={}  mean err={:5.3}%  mean hits={:5.3f}'.format(len(sample_errs), np.mean(sample_errs)*100, np.mean(sample_hits)))
+    print('-' * 80)
+    print('support={}  mean err={:5.3}%  mean hits={:5.3f}'.format(len(sample_errs), np.mean(sample_errs) * 100,
+                                                                   np.mean(sample_hits)))
