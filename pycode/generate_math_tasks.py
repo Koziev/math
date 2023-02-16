@@ -55,6 +55,10 @@ class CombinedInflector:
         return forms2
 
 
+def ch(s):
+    return random.choice(s.split('|'))
+
+
 def Aa(s):
     return s[0].upper() + s[1:]
 
