@@ -81,7 +81,7 @@ def gen_sing(noun):
 
 
 def gen_plur(noun):
-    form = decline_noun(noun, case='Gen', number='Plur')
+    form = decline_collocation(noun, case='Gen', number='Plur')
     return restore_Aa(noun, form)
 
 

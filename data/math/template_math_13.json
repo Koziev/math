@@ -5,7 +5,7 @@
   "sbj2": "random.choice(mnames)",
   "n1": "random.randint(1, 15)",
   "n2": "random.randint(1, 15)",
-  "obj": "random.choice(eatable_items)",
+  "obj": "random.choice(eatable_items+eatable_items2)",
   "z": "n1 + n2"
  },
  
