@@ -1,0 +1,24 @@
+{
+ "variables":
+ {
+  "sbj1": "random.choice(mnames)",
+  "sbj2": "random.choice(fnames)",
+  "n": "random.randint(8, 15)",
+  "m": "random.randint(8, 15)"
+ },
+ 
+ "constraints":
+ [
+  "n != m"
+ ],
+ 
+ "dialogue":
+ [
+  "Машина {gen_sing(sbj1)} ⦃потребляет|расходует|сжигает⦄ {n} {numcor(n, 'литр', 'Acc')} на 100 км, а машина {gen_sing(sbj2)} - {m} {numcor(m, 'литр', 'Acc')} на 100 км. Какая из машин более экономичная?",
+  "!if n > m goto SecondMachine",
+  "{m} < {n}, значит машина {gen_sing(sbj1)} более экономична",
+  "!goto EXIT",
+  "!:SecondMachine",
+  "{m} > {n}, значит машина {gen_sing(sbj2)} более экономична"
+ ]
+}

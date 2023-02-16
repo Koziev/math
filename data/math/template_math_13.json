@@ -1,0 +1,26 @@
+{
+ "variables":
+ {
+  "sbj1": "random.choice(fnames)",
+  "sbj2": "random.choice(mnames)",
+  "n1": "random.randint(1, 15)",
+  "n2": "random.randint(1, 15)",
+  "obj": "random.choice(eatable_items)",
+  "z": "n1 + n2"
+ },
+ 
+ "constraints":
+ [
+  "n1 != n2"
+ ],
+ 
+ "dialogue":
+ [
+  "{sbj1} съела {n1} {numcor(n1, obj, 'Acc')}, а {sbj2} - {n2}. Сколько всего {gen_plur(obj)} они съели?",
+  ["{z}", "Вместе они съели {z} {numcor(z, obj, 'Acc')}", "Они съели {z} штук"],
+  ["Как получилось это число?", "Как получился такой результат?", "Как ты это посчитал?"],
+  ["Нужно сложить {n1} {numcor(n1, obj, 'Acc')} {gen_sing(sbj1)} и {n2} {numcor(n2, obj, 'Acc')} {gen_sing(sbj2)}. {n1}+{n2}={z}",
+   "Складываем {n1} {numcor(n1, obj, 'Acc')} {gen_sing(sbj1)} и {n2} {numcor(n2, obj, 'Acc')} {gen_sing(sbj2)}, получаем {n1}+{n2}={z}"
+  ]
+ ]
+}
