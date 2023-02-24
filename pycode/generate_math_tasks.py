@@ -59,6 +59,10 @@ def ch(s):
     return random.choice(s.split('|'))
 
 
+def opt(s):
+    return random.choice([s, ''])
+
+
 def Aa(s):
     return s[0].upper() + s[1:]
 
@@ -371,6 +375,7 @@ def generate_samples_from_template(template_filepath, named_patterns):
         template = json.load(f)
         for _ in range(args.num_generations):
             vars = dict()
+            # Генерация значений переменных в секции variables
             for var_name, src in template['variables'].items():
                 if var_name.startswith('#'):
                     # Суррогатные комментарии пропускаем
@@ -495,6 +500,10 @@ def generate_samples_from_template(template_filepath, named_patterns):
                         logging.error(ex)
                         raise ValueError()
                     utterance = utterance.replace('{' + expr0 + '}', expr2)
+
+                # 24.02.2023 уберем цепочки пробелов, оставшиеся после опциональной подстановки {opt('xxx')}
+                utterance = re.sub(r'\s{2,}', ' ', utterance)
+
                 utterances.append(utterance)
                 iline += 1
 
@@ -621,7 +630,7 @@ if __name__ == '__main__':
 
     named_patterns = dict()  # TODO
 
-    # Загружаем ресурсы в глобальгное пространство переменных
+    # Загружаем ресурсы в глобальное пространство переменных
     for fp in glob.glob(os.path.join(args.resource_dir, '**', 'resource_*.json'), recursive=True):
         logging.info('Загружаем глобальные переменные из файла "%s"', fp)
         with open(fp, 'r') as f:
